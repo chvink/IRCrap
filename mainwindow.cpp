@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->connectButton,SIGNAL(clicked(bool)),this,SLOT(connectToServer()));
     connect(&sock,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(error(QAbstractSocket::SocketError)));
     connect(ui->disconnectButton,SIGNAL(clicked(bool)),this,SLOT(disconnect()));
+    connect(ui->queryEdit, SIGNAL(returnPressed()), this, SLOT(issueQuery()));
 }
 
 MainWindow::~MainWindow()
@@ -76,11 +77,15 @@ void MainWindow::disconnected()
 void MainWindow::bytesWritten(qint64 bytes)
 {
     ui->serverView->append("Sent: " + curQuery);
+    ui->queryEdit->clear();
+    ui->queryEdit->setFocus();
 }
 
 void MainWindow::readyRead()
 {
-    ui->serverView->append(sock.readAll());
+    QString message = sock.readAll();
+    QStringList components = message.split(" ");
+    ui->serverView->append(message);
 }
 
 void MainWindow::error(QAbstractSocket::SocketError err)
@@ -143,7 +148,6 @@ void MainWindow::error(QAbstractSocket::SocketError err)
     }
 
     ui->serverView->append(msg);
-
     enableConnect();
 }
 
@@ -162,6 +166,8 @@ void MainWindow::enableChat()
     ui->serverAddrEdit->setEnabled(false);
     ui->portEdit->setEnabled(false);
     ui->disconnectButton->setEnabled(true);
+    ui->joinEdit->setEnabled(true);
+    ui->joinButton->setEnabled(true);
 }
 
 void MainWindow::enableConnect()
@@ -172,4 +178,6 @@ void MainWindow::enableConnect()
     ui->serverAddrEdit->setEnabled(true);
     ui->portEdit->setEnabled(true);
     ui->disconnectButton->setEnabled(false);
+    ui->joinEdit->setEnabled(false);
+    ui->joinButton->setEnabled(false);
 }

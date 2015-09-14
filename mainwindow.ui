@@ -21,13 +21,27 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QTextEdit" name="serverView">
-        <property name="readOnly">
-         <bool>true</bool>
+       <widget class="QTabWidget" name="tabList">
+        <property name="currentIndex">
+         <number>0</number>
         </property>
-        <property name="acceptRichText">
-         <bool>false</bool>
-        </property>
+        <widget class="QWidget" name="serverTab">
+         <attribute name="title">
+          <string>Server</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QTextEdit" name="serverView">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="acceptRichText">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
       <item>
@@ -48,6 +62,20 @@
            <string>Disconnect</string>
           </property>
          </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QPushButton" name="joinButton">
+          <property name="text">
+           <string>Join</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="joinEdit"/>
         </item>
        </layout>
       </item>
@@ -76,7 +104,7 @@
            <item>
             <widget class="QLineEdit" name="serverAddrEdit">
              <property name="text">
-              <string>irc.mzima.net</string>
+              <string>irc.esper.net</string>
              </property>
             </widget>
            </item>
