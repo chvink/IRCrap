@@ -11,7 +11,12 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>IRCrap</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+padding: 0px;
+}</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -23,25 +28,8 @@
       <item>
        <widget class="QTabWidget" name="tabList">
         <property name="currentIndex">
-         <number>0</number>
+         <number>-1</number>
         </property>
-        <widget class="QWidget" name="serverTab">
-         <attribute name="title">
-          <string>Server</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QTextEdit" name="serverView">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="acceptRichText">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
        </widget>
       </item>
       <item>

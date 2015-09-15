@@ -1,14 +1,21 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "ircmessage.h"
 
 #include <QtNetwork/QHostAddress>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    serverView(0),
+    manager(0)
 {
     ui->setupUi(this);
+    serverView = new ChannelDisplay(ui->tabList);
+    ui->tabList->addTab(serverView, "Server");
+    ui->tabList->setCurrentIndex(0);
+    manager = new IrcManager(ui, serverView, &sock);
 
     enableConnect();
 
@@ -21,16 +28,23 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&sock,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(error(QAbstractSocket::SocketError)));
     connect(ui->disconnectButton,SIGNAL(clicked(bool)),this,SLOT(disconnect()));
     connect(ui->queryEdit, SIGNAL(returnPressed()), this, SLOT(issueQuery()));
+    connect(ui->joinButton, SIGNAL(clicked(bool)), this, SLOT(join()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete manager;
+}
+
+void MainWindow::sendMsg(const QString &msg)
+{
+    sock.write(msg.toStdString().c_str());
 }
 
 void MainWindow::connectToServer()
 {
-    ui->serverView->append("Doing DNS lookup...");
+    serverView->append("Doing DNS lookup...");
     QHostInfo::lookupHost(ui->serverAddrEdit->text(),
                           this, SLOT(finishedLookup(QHostInfo)));
 }
@@ -39,11 +53,11 @@ void MainWindow::finishedLookup(QHostInfo info)
 {
     if(info.error())
     {
-        ui->serverView->append(info.errorString());
+        serverView->append(info.errorString());
     }
     else
     {
-        ui->serverView->append("Connecting...");
+        serverView->append("Connecting...");
         sock.connectToHost(info.addresses().first(), ui->portEdit->text().toInt());
     }
 }
@@ -59,33 +73,41 @@ void MainWindow::connected()
 
     if(sock.isOpen())
     {
-        ui->serverView->append("Connected to " + sock.peerAddress().toString());
+        serverView->append("Connected to " + sock.peerAddress().toString());
         enableChat();
     }
     else
     {
-        ui->serverView->append("Could not connect");
+        serverView->append("Could not connect");
     }
 }
 
 void MainWindow::disconnected()
 {
-    ui->serverView->append("Disconnected");
+    serverView->append("Disconnected");
     enableConnect();
 }
 
 void MainWindow::bytesWritten(qint64 bytes)
 {
-    ui->serverView->append("Sent: " + curQuery);
+    serverView->append("Sent: " + curQuery);
     ui->queryEdit->clear();
     ui->queryEdit->setFocus();
 }
 
 void MainWindow::readyRead()
 {
-    QString message = sock.readAll();
-    QStringList components = message.split(" ");
-    ui->serverView->append(message);
+    QString messages = sock.readAll();
+    QStringList msgList = messages.split("\n");
+    for(size_t i = 0; i < msgList.size(); ++i)
+    {
+        IrcMessage mess(msgList[i]);
+        if(!mess.getCommand().isEmpty())
+        {
+            manager->recieve(msgList[i]);
+        }
+    }
+
 }
 
 void MainWindow::error(QAbstractSocket::SocketError err)
@@ -143,12 +165,24 @@ void MainWindow::error(QAbstractSocket::SocketError err)
             msg = "Proxy error";
             break;
         case QAbstractSocket::UnknownSocketError:
+        default:
             msg = "Unknown socket error";
             break;
     }
 
-    ui->serverView->append(msg);
+    serverView->append(msg);
     enableConnect();
+}
+
+void MainWindow::join()
+{
+    QString channel = ui->joinEdit->text();
+    sendMsg(manager->joinChannel(channel));
+}
+
+void MainWindow::leave()
+{
+
 }
 
 void MainWindow::issueQuery()

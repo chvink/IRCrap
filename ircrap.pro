@@ -13,8 +13,16 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    ircmessage.cpp \
+    ircmanager.cpp \
+    channeldisplay.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    ircmessage.h \
+    ircmanager.h \
+    channeldisplay.h \
+    enum.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    channeldisplay.ui

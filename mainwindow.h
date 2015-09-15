@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "channeldisplay.h"
+#include "ircmanager.h"
 #include <QtNetwork/QTcpSocket>
 #include <QtNetwork/QDnsLookup>
 #include <QtNetwork/QHostInfo>
@@ -18,6 +20,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void sendMsg(const QString & msg);
+
 public slots:
 
     void connectToServer();
@@ -30,6 +34,8 @@ public slots:
     void bytesWritten(qint64 bytes);
     void readyRead();
     void error(QAbstractSocket::SocketError err);
+    void join();
+    void leave();
 
     void issueQuery();
 
@@ -38,6 +44,9 @@ private:
     QTcpSocket sock;
 
     QString curQuery;
+
+    ChannelDisplay * serverView;
+    IrcManager * manager;
 
     void enableChat();
     void enableConnect();
